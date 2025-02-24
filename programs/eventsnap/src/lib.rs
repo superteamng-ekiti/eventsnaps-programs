@@ -107,6 +107,45 @@ pub mod eventsnap {
         // Account will be closed automatically due to the close constraint
         Ok(())
     }
+    // Fetch all events
+    pub fn get_all_events(ctx: Context<GetAllEvents>) -> Result<Vec<Event>> {
+        let event = &ctx.accounts.event;
+        Ok(vec![event.clone().into_inner()]) // Extract the inner Event struct
+    }
+
+    // Fetch all images by event uploaded by the user
+    pub fn get_user_images_by_event(ctx: Context<GetUserImagesByEvent>) -> Result<Vec<UploadedImage>> {
+        let user_data = &ctx.accounts.user_data;
+        let event = &ctx.accounts.event;
+
+        let user_images: Vec<UploadedImage> = user_data.images
+            .iter()
+            .filter(|image| event.highlight_images.contains(&image.url))
+            .cloned()
+            .collect();
+
+        Ok(user_images)
+    }
+}
+
+#[derive(Accounts)]
+pub struct GetAllEvents<'info> {
+    #[account(mut)]
+    pub program_data: Account<'info, ProgramData>,
+    #[account(mut)]
+    pub event: Account<'info, Event>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct GetUserImagesByEvent<'info> {
+    #[account(mut)]
+    pub user_data: Account<'info, UserData>,
+    #[account(mut)]
+    pub event: Account<'info, Event>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
 }
 
 #[error_code]

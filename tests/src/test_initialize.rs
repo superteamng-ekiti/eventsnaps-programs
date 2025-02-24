@@ -605,3 +605,4 @@ fn test_tag_length_validation() {
         Some(("https://example.com/image.jpg".to_string(), long_tag))
     ).expect("Should fail with TagTooLong");
 }
+
